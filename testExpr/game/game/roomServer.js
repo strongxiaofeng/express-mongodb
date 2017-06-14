@@ -404,9 +404,9 @@ p.handlePlayerGangCard = function (index, sqs) {
             //告知所有人 谁杠了什么牌
             this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_gangCard, gangOrPengInfo:{index:index, card:card, showedCards:this["showedCards"+index]}}});
             //告知他自己 他牌少了4张 还剩哪些牌
-            this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, removeCards:removedCards}});
+            this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, removeCards:removedCards ,leftCardsNum:this.leftCardsNum}});
             //告知其他人 他牌少了4张
-            this.sendToOtherRoomPlayer(index, {command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, otherCardNum:{index:index, num:this["cards"+index].length}}});
+            this.sendToOtherRoomPlayer(index, {command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, otherCardNum:{index:index, num:this["cards"+index].length} ,leftCardsNum:this.leftCardsNum}});
 
             //杠了之后摸一张
             this.dealCard(this.curPlayIndex, this.getCard(1));
@@ -421,8 +421,8 @@ p.handlePlayerGangCard = function (index, sqs) {
             this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, sequence:sqs, code:0});
             this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_gangCard, gangOrPengInfo:{index:index, card:card, showedCards:this["showedCards"+index]}}});
 
-            this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, removeCards:[card]}});
-            this.sendToOtherRoomPlayer(index, {command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, otherCardNum:{index:index, num:this["cards"+index].length}}});
+            this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, removeCards:[card] ,leftCardsNum:this.leftCardsNum}});
+            this.sendToOtherRoomPlayer(index, {command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, otherCardNum:{index:index, num:this["cards"+index].length} ,leftCardsNum:this.leftCardsNum}});
 
             this.curPlayedCard = card;
             // 如果巴杠的这张牌 其他3个人可以胡，那么可以在巴杠之后被截胡
@@ -471,9 +471,9 @@ p.handlePlayerGangCard = function (index, sqs) {
                 //告知所有人 谁杠了什么牌
                 this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_gangCard, gangOrPengInfo:{index:index, card:this.curPlayedCard, showedCards:this["showedCards"+index]}}});
                 //告知他自己 他牌少了3张 还剩哪些牌
-                this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, removeCards:removedCards}});
+                this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, removeCards:removedCards ,leftCardsNum:this.leftCardsNum}});
                 //告知其他人 他牌少了3张
-                this.sendToOtherRoomPlayer(index, {command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, otherCardNum:{index:index, num:this["cards"+index].length}}});
+                this.sendToOtherRoomPlayer(index, {command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, otherCardNum:{index:index, num:this["cards"+index].length} ,leftCardsNum:this.leftCardsNum}});
 
                 this.curPlayIndex = index;
                 this.changeState(this.STATE_PLAYCARD, true);
@@ -518,9 +518,9 @@ p.handlePlayerPengCard = function (index, sqs) {
             //告知所有人 谁碰了什么牌
             this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_pengCard, gangOrPengInfo:{index:index, card:this.curPlayedCard, showedCards:this["showedCards"+index]}}});
             //告知他自己 他牌少了2张 还剩哪些牌
-            this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, removeCards:removedCards}});
+            this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, removeCards:removedCards ,leftCardsNum:this.leftCardsNum}});
             //告知其他人 他牌少了2张
-            this.sendToOtherRoomPlayer(index, {command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, otherCardNum:{index:index, num:this["cards"+index].length}}});
+            this.sendToOtherRoomPlayer(index, {command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, otherCardNum:{index:index, num:this["cards"+index].length} ,leftCardsNum:this.leftCardsNum}});
 
             this.curPlayIndex = index;
             this.changeState(this.STATE_PLAYCARD, true);
@@ -565,7 +565,7 @@ p.haveHuWait = function (index) {
         return false;
     }
 
-    if(this.waitQueue[index] && this.waitQueue[index].indexOf("hu")>-1){
+    if(this.waitQueue[index] && this.waitQueue[index].length>0 && this.waitQueue[index].indexOf("hu")>-1){
         return true;
     }
     return false;
