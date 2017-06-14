@@ -1,19 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="be1b5cd2-174e-4101-aadf-10484d95af05" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testExpr/game/game/cardUtil.js" afterPath="$PROJECT_DIR$/testExpr/game/game/cardUtil.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testExpr/game/game/gameHandler.js" afterPath="$PROJECT_DIR$/testExpr/game/game/gameHandler.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testExpr/game/game/gameServer.js" afterPath="$PROJECT_DIR$/testExpr/game/game/gameServer.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testExpr/game/game/roomServer.js" afterPath="$PROJECT_DIR$/testExpr/game/game/roomServer.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testExpr/game/login/loginHandler.js" afterPath="$PROJECT_DIR$/testExpr/game/login/loginHandler.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testExpr/game/login/loginServer.js" afterPath="$PROJECT_DIR$/testExpr/game/login/loginServer.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testExpr/socket/BaseMsg.js" afterPath="$PROJECT_DIR$/testExpr/socket/BaseMsg.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testExpr/socket/commands.js" afterPath="$PROJECT_DIR$/testExpr/socket/commands.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testExpr/socket/msgHandler.js" afterPath="$PROJECT_DIR$/testExpr/socket/msgHandler.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testExpr/socket/websocket.js" afterPath="$PROJECT_DIR$/testExpr/socket/websocket.js" />
-    </list>
+    <list default="true" id="be1b5cd2-174e-4101-aadf-10484d95af05" name="Default" comment="" />
     <ignored path="express-mongodb.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -332,18 +320,18 @@
       <workItem from="1497343318723" duration="484000" />
       <workItem from="1497344016962" duration="5157000" />
       <workItem from="1497404370952" duration="15556000" />
-      <workItem from="1497428257861" duration="7265000" />
+      <workItem from="1497428257861" duration="7297000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="94934000" />
+    <option name="totallyTimeSpent" value="94966000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="97" y="20" width="1764" height="1000" extended-state="0" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24942791" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24942791" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
