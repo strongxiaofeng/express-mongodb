@@ -22,18 +22,7 @@
     <favorites_list name="express-mongodb" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="roomServer.js" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/testExpr/game/game/roomServer.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="344">
-              <caret line="313" column="5" selection-start-line="313" selection-start-column="5" selection-end-line="313" selection-end-column="5" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -320,12 +309,12 @@
       <workItem from="1497343318723" duration="484000" />
       <workItem from="1497344016962" duration="5157000" />
       <workItem from="1497404370952" duration="15556000" />
-      <workItem from="1497428257861" duration="7297000" />
+      <workItem from="1497428257861" duration="7361000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="94966000" />
+    <option name="totallyTimeSpent" value="95030000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="97" y="20" width="1764" height="1000" extended-state="0" />
