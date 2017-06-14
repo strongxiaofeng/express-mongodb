@@ -3,6 +3,12 @@ var businessDB = require("../../db/businessDB");
 var codes = require("../errorCode");
 var logined = [];
 
+exports.userExit =function (name) {
+    var index = logined.indexOf(name);
+    if(index >=0){
+        logined.splice(index, 1);
+    }
+}
 /**注册*/
 exports.register = function register(name,password,callback) {
     if(!name){

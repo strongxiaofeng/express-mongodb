@@ -4,7 +4,8 @@ const commands = {
     LOGIN:3,
     MATCH_PLAYER:4,
     PLAY_GAME:5,
-    ROOM_NOTIFY:6
+    ROOM_NOTIFY:6,
+    WS_CLOSE:7
 }
 
 module.exports = commands;

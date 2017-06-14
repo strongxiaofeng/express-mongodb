@@ -9,8 +9,10 @@ addEvents();
 function addEvents() {
     addEvent(commands.REGISTER, loginHandler);
     addEvent(commands.LOGIN, loginHandler);
+    addEvent(commands.WS_CLOSE, loginHandler);
     addEvent(commands.MATCH_PLAYER, gameHandler);
     addEvent(commands.PLAY_GAME, gameHandler);
+    addEvent(commands.WS_CLOSE, gameHandler);
 }
 function addEvent(command, handler) {
     emitter.on(command, function (ws, data) {

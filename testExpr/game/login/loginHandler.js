@@ -11,9 +11,14 @@ exports.handMsg = function (ws, data) {
         case commands.LOGIN:
             handleLogin(ws, data);
             break;
+        case commands.WS_CLOSE:
+            handleClose(ws.name);
+            break;
     }
 }
-
+function handleClose(name) {
+    server.userExit(name);
+}
 function handleRegister(ws, data) {
     var sqs = data.sequence;
     server.register(data.content.name, data.content.password, function (errcode, result) {
@@ -39,6 +44,8 @@ function handleLogin(ws, data) {
         }
         else{
             if(result){
+                //登录成功就把name和这个ws关联起来
+                ws.name = data.content.name;
                 var resp = {command:commands.LOGIN, code:0, sequence:sqs, content:{name:data.content.name}};
                 wss.sendMsg(ws, resp);
             }

@@ -64,7 +64,14 @@ exports.matchPlayer = function (ws, name, sqs, callback) {
                 room.initGame();
             }
         })
-
     }
-
+}
+/**玩家退出连接，要把他从匹配队列中移除*/
+exports.userExit = function (name) {
+    for(var i=0; i<queue.length; i++){
+        if(queue[i].name == name){
+            queue.splice(i, 1);
+            break;
+        }
+    }
 }

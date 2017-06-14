@@ -11,6 +11,10 @@ exports.handMsg = function (ws, data) {
         case commands.PLAY_GAME:
             playGame(ws, data);
             break;
+        case commands.WS_CLOSE:
+            userExit(ws.name);
+            break;
+
     }
 }
 
@@ -27,4 +31,8 @@ function matchPlayer(ws, data) {
 
 function playGame(ws, data) {
     server.playgame(ws, data);
+}
+
+function userExit(name) {
+    server.userExit(name);
 }

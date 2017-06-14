@@ -32,6 +32,8 @@ exports.getCardGangAble = function (cards) {
 }
 /**是否可以杠指定的牌 用于检测杠他人出的牌 同步*/
 exports.getCardGangAbleByCard = function (cards, card) {
+    if(card<0) return false;
+
     var v = getCardNum(card);
     var num = 0;
     for(var i=0; i<cards.length; i++) {
@@ -238,6 +240,21 @@ function checkOneFlower(arr) {
         return false;
     }
 }
+/**从牌组arr队列中移除2个或者3个牌num，并将剩余的牌和移除的牌返回出去，碰 杠时要用到这个*/
+exports.removeCardFromArr = function(arr, num, count) {
+    var removeArray = [];
+    for(var i=0; i<count; i++) {
+        for(var j=0; j<arr.length; j++){
+            if(getCardNum(arr[j]) == getCardNum(num)){
+                removeArray.push(arr[j]);
+                arr.splice(j,1);
+                break;
+            }
+        }
+    }
+    return [arr, removeArray];
+}
+
 /**将牌的序列号转为牌的点数*/
 function getCardNum(value) {
     return Math.floor(value/4+1);

@@ -4,6 +4,7 @@ var WsPool = require("./wsPool");
 var clients = new WsPool();
 var indexs = [];
 var msgHandler = require("./msgHandler");
+var commands = require("./commands");
 
 
 wss.on('connection', function (ws) {
@@ -18,7 +19,7 @@ function someoneConnected(ws) {
         onMessage(ws, message);
     });
     ws.on('close', function () {
-        removeWs(ws.clientid);
+        removeWs(ws, ws.clientid);
     })
 }
 /**保存一个客户连接*/
@@ -33,8 +34,10 @@ function addWs(ws) {
     clients.setValue(i,ws);
 }
 /**删除一个客户连接*/
-function removeWs(i) {
-    console.log("有人断开了 他的index是 "+i);
+function removeWs(ws, i) {
+    console.log("有人断开了 他的index是 "+i+" name:"+ws.name);
+    msgHandler.dispatch(commands.WS_CLOSE, ws, {command:commands.WS_CLOSE});
+
     var index = indexs.indexOf(i);
     indexs.splice(index,1);
     clients.removeKey(i);

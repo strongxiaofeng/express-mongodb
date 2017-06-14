@@ -53,7 +53,9 @@
  *          //当前出牌人
  *          curPlayIndex:number,
  *          //摸到的牌
- *          addCards:[].
+ *          addCards:[],
+ *          //移除的牌 碰或者杠会用到
+ *          removeCards:[],
  *          //他人牌数变动
  *          otherCardNum:[index:number, num:number],
  *          //剩余的牌
