@@ -47,19 +47,23 @@
  *          state: 1/2/3/4/5/6/7/8/9/10,
  *
  *          //2个骰子摇出来的点数结果
- *          dice:2-12
+ *          dice:[2,3]
+ *          //所有人的定缺
+ *          lackCards:[]
  *          //当前出牌人
- *          currentIndex:number,
+ *          curPlayIndex:number,
  *          //摸到的牌
  *          addCards:[].
  *          //他人牌数变动
  *          otherCardNum:[index:number, num:number],
+ *          //剩余的牌
+ *          leftCardsNum:number,
  *          huAble:boolean,
  *          pengAble:boolean,
  *          gangAble:boolean,
  *          playAble:boolean,
  *          //某玩家出过的牌，最后一个表示刚打出的
- *          playedCard:{index:number,cards:[]},
+ *          playedCards:{index:number,cards:[]},
  *          //某玩家胡牌,自摸的话不显示胡的牌
  *          huInfo:{index:number, card:number},
  *          //某玩家杠/碰牌
@@ -77,18 +81,11 @@
  *          //玩家的名字，每个玩家socket只能发送自己的操作，如果name和这个socket不对应，操作就不合法
  *          name:string,
  *          //操作类型 定缺，出牌， 碰, 杠, 胡, 过
- *          actionType:1/2/3/4/5/6,
+ *          state:1/2/3/4/5/6,
  *          lack:"wan/tiao/tong",
  *          card:number,
  *      }
  * }
- *
- *
- *
- *
- *
- *
- *
  *
  *
  *

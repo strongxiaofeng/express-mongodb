@@ -13,6 +13,8 @@ exports.playgame = function (ws, data) {
     console.log("收到玩游戏的消息 "+JSON.stringify(data));
     var roomId = data.content.roomId;
     var index = data.content.index;
+    var name = data.content.name;
+    //通过name 和 ws做比对，自己的name才合法
     var room = rooms[roomId];
     if(room){
         console.log("房间"+roomId+"的玩家"+index+"发出游戏请求 "+JSON.stringify(data));
