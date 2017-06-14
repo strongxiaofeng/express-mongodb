@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="be1b5cd2-174e-4101-aadf-10484d95af05" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testExpr/socket/BaseMsg.js" afterPath="$PROJECT_DIR$/testExpr/socket/BaseMsg.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testExpr/socket/commands.js" afterPath="$PROJECT_DIR$/testExpr/socket/commands.js" />
     </list>
     <ignored path="express-mongodb.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -60,8 +58,8 @@
       <file leaf-file-name="BaseMsg.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/testExpr/socket/BaseMsg.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="682">
-              <caret line="97" column="35" selection-start-line="97" selection-start-column="35" selection-end-line="97" selection-end-column="35" />
+            <state relative-caret-position="594">
+              <caret line="66" column="2" selection-start-line="66" selection-start-column="2" selection-end-line="66" selection-end-column="2" />
               <folding />
             </state>
           </provider>
@@ -339,12 +337,12 @@
       <workItem from="1497317258723" duration="795000" />
       <workItem from="1497343318723" duration="484000" />
       <workItem from="1497344016962" duration="5157000" />
-      <workItem from="1497404370952" duration="3344000" />
+      <workItem from="1497404370952" duration="3400000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="75457000" />
+    <option name="totallyTimeSpent" value="75513000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="97" y="20" width="1764" height="1000" extended-state="0" />
@@ -755,8 +753,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/testExpr/socket/BaseMsg.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="682">
-          <caret line="97" column="35" selection-start-line="97" selection-start-column="35" selection-end-line="97" selection-end-column="35" />
+        <state relative-caret-position="594">
+          <caret line="66" column="2" selection-start-line="66" selection-start-column="2" selection-end-line="66" selection-end-column="2" />
           <folding />
         </state>
       </provider>

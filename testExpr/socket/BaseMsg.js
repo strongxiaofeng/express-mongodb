@@ -64,25 +64,6 @@
  *          huInfo:{index:number, card:number},
  *          //某玩家杠/碰牌
  *          gangOrPengInfo:{index:number, card:number, showedCards:[]},
- *
- *          name:"",
- *          //发出的牌
- *          addCards:[],
- *          //剩余的牌数
- *          leftCardsNum:number,
- *          //他人的牌数
- *          otherCardNum:number,
- *          //定缺
- *          lackCard:"wan"/"tiao"/"tong",
- *          //出牌,碰牌（告知当前该第index个玩家操作了）
- *          index:number,
- *          gangAble:false,
- *          huAble:false,
- *          pengAble:false,
- *          //玩家操作
- *          action: hu/gang/peng/guo/play,
- *          //玩家出牌的牌号
- *          card:number
  *      }
  * }
  *
