@@ -53,14 +53,20 @@ exports.matchPlayer = function (ws, name, sqs, callback) {
 
                 for(var j=0;j<result.length;j++){
                     players.push({name: result[j].name, balance: result[j].balance});
+
+                    for(var k=0; k<newArr.length;k++){
+                        if(newArr[k] && newArr[k].name == result[j].name){
+                            serverPlayers.push({ws:newArr[k].ws,  name: result[j].name});
+                        }
+                    }
                 }
                 for(var i=0; i<4; i++){
                     newArr[i].callback(null, newArr[i].sqs, players);
                 }
 
-                for(var j=0;j<result.length;j++){
-                    serverPlayers.push({ws:newArr[j].ws,  name: result[j].name});
-                }
+                // for(var j=0;j<result.length;j++){
+                //     serverPlayers.push({ws:newArr[j].ws,  name: result[j].name});
+                // }
                 var room = new RoomServer();
                 rooms[room.roomId] = room;
                 room.setPlayers(serverPlayers);
