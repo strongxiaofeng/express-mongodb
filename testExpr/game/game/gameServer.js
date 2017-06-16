@@ -44,8 +44,13 @@ exports.matchPlayer = function (ws, name, sqs, callback) {
 
             }
             else{
+                //发现了这个bug 前后端的数组必须统一
+
                 /**返回给前端的玩家数组*/
                 var players = [];
+                /**服务端一个游戏房间要用的玩家数组*/
+                var serverPlayers = [];
+
                 for(var j=0;j<result.length;j++){
                     players.push({name: result[j].name, balance: result[j].balance});
                 }
@@ -53,8 +58,6 @@ exports.matchPlayer = function (ws, name, sqs, callback) {
                     newArr[i].callback(null, newArr[i].sqs, players);
                 }
 
-                /**服务端一个游戏房间要用的玩家数组*/
-                var serverPlayers = [];
                 for(var j=0;j<result.length;j++){
                     serverPlayers.push({ws:newArr[j].ws,  name: result[j].name});
                 }
