@@ -3,6 +3,15 @@ var wss = require("../../socket/websocket");
 var commands = require("../../socket/commands");
 var codes = require("../errorCode");
 
+/**等待操作的类，包含座位号，可以做的操作，做出的操作，发送操作的sqs*/
+var WaitObj = function () {
+    this.index = 0;
+    this.handleAble = "";
+    this.handle = "";
+    this.sqs = 0;
+}
+
+
 /**
  * 单个房间服务
  * */
@@ -67,11 +76,10 @@ p.STATE_HANDLECARD = 3;
 /**结算*/
 p.STATE_PAYOUT = 4;
 /**
- * 在STATE_HANDLECARD的状态时，等待胡/杠/碰的队列，以座位号为key，操作为value
+ * 在STATE_HANDLECARD的状态时，等待胡/杠/碰的队列，以WaitObj作为子元素
  * 有可能这个状态时有多个人都可以对当前出的牌有想法 他们有的想胡牌，有的想碰/杠，以胡牌的优先级最高 所以要写一个队列
- * 例如 玩家0出了牌，这个队列可能是{1:"peng,gang", 2:"hu", 3:"hu"}
  * */
-p.waitQueue = {};
+p.waitQueue = [];
 /**
  * 向玩家发送的状态码
  * 通知骰子点数和庄家
@@ -105,16 +113,20 @@ p.playCommand_huCard = 5;
 p.playCommand_guoCard = 6;
 
 /**是否胡牌*/
-p.isPlayerHu0 = false;
-p.isPlayerHu1 = false;
-p.isPlayerHu2 = false;
-p.isPlayerHu3 = false;
+p.isPlayerOver0 = false;
+p.isPlayerOver1 = false;
+p.isPlayerOver2 = false;
+p.isPlayerOver3 = false;
 
-/**设置玩家*/
+/**
+ * 设置4个玩家
+ * */
 p.setPlayers = function (players) {
     this.players = players;
 }
-/**初始游戏*/
+/**
+ * 初始游戏
+ * */
 p.initGame = function () {
     this.leftCards = cardUtil.getNewCards108();
 
@@ -138,8 +150,9 @@ p.initGame = function () {
         self.changeState(self.STATE_LACKCARD);
     });
 }
-
-/**初始发牌*/
+/**
+ * 初始发牌
+ * */
 p.initDealCard = function (i,num,delay, callback) {
     var self = this;
     setTimeout(function () {
@@ -149,7 +162,9 @@ p.initDealCard = function (i,num,delay, callback) {
         }
     },self.dealCardTime*delay);
 }
-/**向某个玩家发牌*/
+/**
+ * 向某个玩家发牌
+ * */
 p.dealCard = function (i, arr) {
     this.changeState(this.STATE_DEALCARD);
     this["cards"+i] = this["cards"+i].concat(arr);
@@ -160,8 +175,9 @@ p.dealCard = function (i, arr) {
     if(i != 2)this.sendToOneRoomPlayer(2, {command:commands.ROOM_NOTIFY, content:{roomId:this.roomId, state:this.roomCommand_dealCard,otherCardNum:{index:i,num:this["cards"+i].length}, leftCardsNum:this.leftCards.length}});
     if(i != 3)this.sendToOneRoomPlayer(3, {command:commands.ROOM_NOTIFY, content:{roomId:this.roomId, state:this.roomCommand_dealCard,otherCardNum:{index:i,num:this["cards"+i].length}, leftCardsNum:this.leftCards.length}});
 }
-
-/**改变房间状态*/
+/**
+ * 改变房间状态
+ * */
 p.changeState = function (n,params) {
     if(this.state == n){
         return;
@@ -182,7 +198,7 @@ p.changeState = function (n,params) {
             break;
         case this.STATE_PLAYCARD:
             //进入出牌状态
-            this.waitQueue = {};
+            this.waitQueue = [];
             //出牌的人能不能暗杠
             var gangAble = cardUtil.getCardGangAble(this["cards"+this.curPlayIndex]);
             //出牌的人能不能巴杠
@@ -208,8 +224,9 @@ p.changeState = function (n,params) {
             break;
     }
 }
-
-
+/**
+ * 分发玩家的操作请求
+ * */
 p.haddlePlayerQuest = function (index, data) {
     var state = data.content.state;
     var sqs = data.sequence;
@@ -234,7 +251,9 @@ p.haddlePlayerQuest = function (index, data) {
             break;
     }
 }
-/**给玩家定缺*/
+/**
+ * 给玩家定缺
+ * */
 p.handlePlayerLackCard = function (index, lackCard, sqs) {
     if(index<4){
         console.log('玩家'+index+"定缺"+lackCard);
@@ -248,9 +267,148 @@ p.handlePlayerLackCard = function (index, lackCard, sqs) {
         }
     }
 }
-/**玩家要出牌*/
+
+//**************************************************** 等待队列的操作 **********************************************************
+
+/**
+ * 每当玩家对牌做出操作(胡杠碰过)，都检查一次等待队列,是否有胡牌的人
+ * */
+p.checkWaitQueueHu = function(){
+    //有人可以胡
+    if(this.isWaitQueueHaveHuAble()){
+        //有人还没确定胡不胡
+        if(this.isWaitQueueHaveHuWait()){
+
+        }
+        //都确定了胡不胡
+        else{
+            var huArr = this.getHuPlayerFromQueue();
+            //有人胡了
+            if(huArr.length>0){
+                for(var i=0; i<huArr.length; i++){
+                    this.sendToOneRoomPlayer(huArr[i].index,{command:commands.ROOM_NOTIFY, sequence:huArr[i].sqs, code:0});
+                    this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_huCard, huInfo:{index:index, card:this.curPlayedCard}}});
+                    this.removePlayerfromWaitQuene(huArr[i].index);
+                }
+            }
+            //都选择了过 不胡
+            else{
+                this.checkWaitQueueGangPeng();
+            }
+        }
+    }
+    //没人可胡
+    else{
+        this.checkWaitQueueGangPeng();
+    }
+}
+/**
+ * 有没有人可以做 杠/碰 操作的
+ * */
+p.checkWaitQueueGangPeng = function () {
+    var waitObj = this.isWaitQueueHavePengGangAble();
+    //有人可以碰杠
+    if(waitObj){
+        if(waitObj.handle){
+            //处理这个人的碰/杠 逻辑
+        }
+        else{
+            //继续等他碰杠过
+        }
+    }
+    //没人可以碰杠 继续发牌
+    else{
+
+    }
+}
+/**
+ * 等待队列中，是否有可以胡牌的人(不论他胡没胡)
+ * */
+p.isWaitQueueHaveHuAble = function () {
+    for(var i=0; i<this.waitQueue.length; i++){
+        if(this.waitQueue[i].handleAble.indexOf("hu") > -1){
+            return true;
+        }
+    }
+    return false;
+}
+/**
+ * 等待队列中，是否有可以胡的人还没选择胡不胡
+ * */
+p.isWaitQueueHaveHuWait = function () {
+    for(var i=0; i<this.waitQueue.length; i++){
+        if(this.waitQueue[i].handleAble.indexOf("hu") > -1 && !this.waitQueue[i].handle){
+            return true;
+        }
+    }
+    return false;
+}
+/**
+ * 从等待队列获取选择胡牌了的玩家
+ * */
+p.getHuPlayerFromQueue = function () {
+    var arr = [];
+    for(var i=0; i<this.waitQueue.length; i++){
+        if(this.waitQueue[i] && this.waitQueue[i].handleAble.indexOf("hu")>-1 && this.waitQueue[i].handle=="hu"){
+            arr.push(this.waitQueue[i]);
+        }
+    }
+    return arr;
+}
+/**
+ * 从等待队列中移除该玩家
+ * */
+p.removePlayerfromWaitQuene = function (index) {
+    for(var i=0; i<this.waitQueue.length; i++){
+        if(this.waitQueue[i].index == index){
+            this.waitQueue.splice(i,1);
+            return;
+        }
+    }
+}
+/**
+ * 等待队列中，是否有可以碰/杠牌的人(不论他点没点), 有的话直接返回这个人的等待对象，因为只会有一个人可以碰杠
+ * */
+p.isWaitQueueHavePengGangAble = function () {
+    for(var i=0; i<this.waitQueue.length; i++){
+        if(this.waitQueue[i].handleAble.indexOf("peng") > -1 || this.waitQueue[i].handleAble.indexOf("gang") > -1){
+            return this.waitQueue[i];
+        }
+    }
+    return null;
+}
+/**
+ * 该玩家是否在等待胡牌的队列
+ * */
+p.getPlayerInWaitHuQuene = function (index) {
+    for(var i=0; i<this.waitQueue.length; i++){
+        if(this.waitQueue[i].index == index){
+            if(this.waitQueue[i].handleAble.indexOf("hu")>-1){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+/**设
+ * 置该玩家在等待队列中做出的操作
+ * */
+p.setPlayerHandleInQuene = function (index, handle, sqs) {
+    for(var i=0; i<this.waitQueue.length; i++){
+        if(this.waitQueue[i].index == index){
+            this.waitQueue[i].handle = handle;
+            this.waitQueue[i].sqs = sqs;
+        }
+    }
+}
+
+//**************************************************** 玩家的操作 **********************************************************
+
+/**
+ * 玩家要出牌
+ * */
 p.handlePlayerPlarCard = function (index, card, sqs) {
-    if( this["isPlayerHu"+index]){
+    if( this["isPlayerOver"+index]){
         console.log("胡牌之后不能操作，不能杠");
         this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, sequence:sqs, code:codes.PLAY_ERROR});
     }
@@ -269,7 +427,7 @@ p.handlePlayerPlarCard = function (index, card, sqs) {
         //另外三个人中还没胡牌的，是否可以胡/杠/碰 这个牌
         var needWait = false;
         for(var n=0; n<4; n++){
-            if(index != n && !this["isPlayerHu"+n]){
+            if(index != n && !this["isPlayerOver"+n]){
                 var huAble = cardUtil.getCardHuAble(this["cards"+n].concat([card]));
                 var gangAble = cardUtil.getCardGangAbleByCard(this["cards"+n], card);
                 var pengAble = cardUtil.getCardPengAbleByCard(this["cards"+n], card);
@@ -287,10 +445,12 @@ p.handlePlayerPlarCard = function (index, card, sqs) {
                     if(pengAble){
                         string =  string.length==0 ? string+"peng" : string+",peng";
                     }
+
+                    var wait = new WaitObj();
+                    wait.index = n;
+                    wait.handleAble = string;
                     //等待的玩家号和他的操作
-                    this.waitQueue[n] = string;
-                    //等待操作的对象牌
-                    this.waitQueue[card] = card;
+                    this.waitQueue.push(wait);
 
                     this.changeState(this.STATE_HANDLECARD);
                     this.sendToOneRoomPlayer(n, {command:commands.ROOM_NOTIFY,
@@ -299,7 +459,6 @@ p.handlePlayerPlarCard = function (index, card, sqs) {
                 }
             }
         }
-
         //没人可以操作这张牌，就轮到下一个人摸牌
         if(!needWait) {
             console.log("没人可以操作这张牌，就轮到下一个人摸牌");
@@ -307,21 +466,21 @@ p.handlePlayerPlarCard = function (index, card, sqs) {
             this.dealCard(this.curPlayIndex, this.getCard(1));
             this.changeState(this.STATE_PLAYCARD);
         }
-
     }
     else{
         console.log("玩家"+index+"没有这个牌"+card+"， 出牌失败");
     }
 }
-
-/**玩家要胡牌*/
+/**
+ * 玩家要胡牌
+ * */
 p.handlePlayerHuCard = function (index, sqs) {
     var card = -1;
     //当前玩家申请胡牌，那么他是自摸
     if(index == this.curPlayIndex){
         card = this["cards"+index][this["cards"+index].length-1];
         if(cardUtil.getCardHuAble(this["cards"+index])){
-            this["isPlayerHu"+index] = true;
+            this["isPlayerOver"+index] = true;
             this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, sequence:sqs, code:0});
             this.sendToRoomPlayers(index,{command:commands.ROOM_NOTIFY, sequence:sqs, content:{state:this.roomCommand_huCard, huInfo:{index:index, card:card}}});
 
@@ -346,21 +505,25 @@ p.handlePlayerHuCard = function (index, sqs) {
     else{
         card = this.curPlayedCard;
         //该玩家在等待胡牌操作的队列中，才可以胡牌
-        if(this.waitQueue && this.waitQueue[index] && this.waitQueue[index].indexOf("hu")!=-1){
+        if(this.getPlayerInWaitHuQuene(index)){
             console.log("胡牌成功");
-            this["isPlayerHu"+index] = true;
-            this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, sequence:sqs, code:0});
-            this.sendToRoomPlayers(index,{command:commands.ROOM_NOTIFY, sequence:sqs, content:{state:this.roomCommand_huCard, huInfo:{index:index, card:card}}});
-            this.waitQueue[index] = "";
+            this["isPlayerOver"+index] = true;
+            this.setPlayerHandleInQuene(index,"hu", sqs);
 
-            //等待队列还有人可以胡，等待他胡牌
-            if(this.haveHuWait(0) || this.haveHuWait(1) || this.haveHuWait(2) || this.haveHuWait(3)){
-                console.log("还有其他人可以胡牌，等待其他人选择");
+            //如果还有其他人可以胡，等其他人胡
+            if(this.waitHuQueueLength() > 0){
+
             }
-            //没人可以胡牌了，继续摸牌
+            //双响，等可以胡的人都胡了 才发消息给客户端 胡牌成功
             else{
-                this.curPlayIndex = index;
+                var huArr = this.getHuPlayerFromQueue();
+                for(var i=0; i<huArr.length; i++){
+                    this.sendToOneRoomPlayer(huArr[i].index,{command:commands.ROOM_NOTIFY, sequence:huArr[i].sqs, code:0});
+                    this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_huCard, huInfo:{index:index, card:card}}});
+                    this.removePlayerfromWaitQuene(huArr[i].index);
+                }
 
+                this.curPlayIndex = index;
                 if(this.checkPlayersHuNum()){
                     console.log("3个人胡牌了 游戏结束");
                     this.gameOver();
@@ -380,9 +543,11 @@ p.handlePlayerHuCard = function (index, sqs) {
         }
     }
 }
-/**玩家要杠牌*/
+/**
+ * 玩家要杠牌
+ * */
 p.handlePlayerGangCard = function (index, sqs) {
-    if( this["isPlayerHu"+index]){
+    if( this["isPlayerOver"+index]){
         console.log("胡牌之后不能操作，不能杠");
         this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, sequence:sqs, code:codes.PLAY_ERROR});
     }
@@ -493,9 +658,11 @@ p.handlePlayerGangCard = function (index, sqs) {
         }
     }
 }
-/**玩家要碰牌*/
+/**
+ * 玩家要碰牌
+ * */
 p.handlePlayerPengCard = function (index, sqs) {
-    if( this["isPlayerHu"+index]){
+    if( this["isPlayerOver"+index]){
         console.log("胡牌之后不能操作，不能杠");
         this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, sequence:sqs, code:codes.PLAY_ERROR});
     }
@@ -531,35 +698,66 @@ p.handlePlayerPengCard = function (index, sqs) {
         }
     }
 }
-/**玩家要过牌*/
-p.handlePlayerGuoCard = function () {
+/**
+ * 玩家要过牌
+ * */
+p.handlePlayerGuoCard = function (index, sqs) {
+    this.removePlayerfromWaitQuene(index);
+    this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, sequence:sqs, code:0});
 
+    //过了之后没人等待了，继续摸牌，这个最简单
+    if(this.waitQueueLength() == 0){
+        this.waitQueue = [];
+        this.addCurIndex();
+        this.dealCard(this.curPlayIndex, this.getCard(1));
+        this.changeState(this.STATE_PLAYCARD);
+    }
+    //该玩家过了，还有其他玩家在等待 胡/杠/碰
+    else{
+        //有其他人可以胡牌 并且都点胡了
+        if(this.getHuPlayerFromQueue().length>0 && this.waitHuQueueLength()==0){
+            var huArr = this.getHuPlayerFromQueue();
+            for(var i=0; i<huArr.length; i++){
+                this.sendToOneRoomPlayer(huArr[i].index,{command:commands.ROOM_NOTIFY, sequence:huArr[i].sqs, code:0});
+                this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_huCard, huInfo:{index:index, card:this.curPlayedCard}}});
+                this.removePlayerfromWaitQuene(huArr[i].index);
+            }
+        }
+        else{
+
+        }
+    }
 }
-
-/**递增当前的操作玩家*/
+/**
+ * 递增当前的操作玩家
+ * */
 p.addCurIndex = function () {
     this.curPlayIndex++;
     if(this.curPlayIndex > 3) this.curPlayIndex-=4;
 
-    if(this["isPlayerHu"+this.curPlayIndex]){
+    if(this["isPlayerOver"+this.curPlayIndex]){
         this.curPlayIndex++;
         if(this.curPlayIndex > 3) this.curPlayIndex-=4;
     }
-    if(this["isPlayerHu"+this.curPlayIndex]){
+    if(this["isPlayerOver"+this.curPlayIndex]){
         this.curPlayIndex++;
         if(this.curPlayIndex > 3) this.curPlayIndex-=4;
     }
 }
-/**是否3个人以上胡牌*/
+/**
+ * 是否3个人以上结束
+ * */
 p.checkPlayersHuNum = function () {
     var num = 0;
-    if(this.isPlayerHu0){ num++; }
-    if(this.isPlayerHu1){ num++; }
-    if(this.isPlayerHu2){ num++; }
-    if(this.isPlayerHu3){ num++; }
+    if(this.isPlayerOver0){ num++; }
+    if(this.isPlayerOver1){ num++; }
+    if(this.isPlayerOver2){ num++; }
+    if(this.isPlayerOver3){ num++; }
     return num >= 3;
 }
-/**等待队列中是否还有人可以胡牌*/
+/**
+ * 等待队列中是否还有人可以胡牌
+ * */
 p.haveHuWait = function (index) {
     if(index == this.curPlayIndex){
         return false;
@@ -571,11 +769,15 @@ p.haveHuWait = function (index) {
     return false;
 }
 
-/**没有牌了 或者 3个人胡牌了，游戏结束*/
+/**
+ * 没有牌了 或者 3个人结束了，游戏结束
+ * */
 p.gameOver = function () {
     
 }
-/**从剩余的牌组的开始取n张牌*/
+/**
+ * 从剩余的牌组的开始取n张牌
+ * */
 p.getCard = function (n) {
     if(this.leftCards.length == 0){
         console.log("没有牌了 游戏结束");
@@ -589,17 +791,23 @@ p.getCard = function (n) {
     }
     return arr;
 }
-/**向房间内的4个人发送消息*/
+/**
+ * 向房间内的4个人发送消息
+ * */
 p.sendToRoomPlayers = function (data) {
     for(var i=0; i<this.players.length; i++){
         wss.sendMsg(this.players[i].ws, data);
     }
 }
-/**向房间内的一个人发送消息*/
+/**
+ * 向房间内的一个人发送消息
+ * */
 p.sendToOneRoomPlayer = function(index, data){
     wss.sendMsg(this.players[index].ws, data);
 }
-/**向房间内的其他三人发送消息*/
+/**
+ * 向房间内的其他三人发送消息
+ * */
 p.sendToOtherRoomPlayer = function(index, data){
     if(index!=0) wss.sendMsg(this.players[0].ws, data);
     if(index!=1) wss.sendMsg(this.players[1].ws, data);
