@@ -148,10 +148,10 @@ function checkValues(values) {
                     wan.push(value);
                 }
                 else if(value <= 18){
-                    tiao.push(value%9);
+                    tiao.push(value%9==0 ? 9 : value%9);
                 }
                 else{
-                    tong.push(value%9);
+                    tong.push(value%9==0 ? 9 : value%9);
                 }
             }
         }
@@ -255,7 +255,7 @@ exports.removeCardFromArr = function(arr, num, count) {
     return [arr, removeArray];
 }
 
-/**将牌的序列号转为牌的点数*/
+/**将牌的序列号转为牌的点数 0-27*/
 function getCardNum(value) {
     return Math.floor(value/4+1);
 }
