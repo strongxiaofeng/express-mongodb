@@ -306,7 +306,7 @@ p.checkWaitQueueHu = function(){
                     huIndex.push(huArr[i].index);
                     this["isPlayerOver"+huArr[i].index] = true;
                     this.sendToOneRoomPlayer(huArr[i].index,{command:commands.ROOM_NOTIFY, sequence:huArr[i].sqs, code:0});
-                    this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_huCard, huInfo:{index:index, card:this.curPlayedCard}}});
+                    this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_huCard, huInfo:{index:huArr[i].index, card:this.curPlayedCard}}});
                     this.removePlayerfromWaitQuene(huArr[i].index);
                 }
 
@@ -362,7 +362,7 @@ p.checkWaitQueueGangPeng = function () {
                 this.sendToOtherRoomPlayer(index, {command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, otherCardNum:{index:index, num:this["cards"+index].length} ,leftCardsNum:this.leftCardsNum}});
 
                 this.curPlayIndex = index;
-                this.changeState(this.STATE_PLAYCARD, true);
+                this.changeState(this.STATE_PLAYCARD, {ispeng: true});
             }
             //处理杠牌逻辑
             else if(waitObj.handle == "gang"){
@@ -393,7 +393,8 @@ p.checkWaitQueueGangPeng = function () {
     }
     //没人可以碰杠 继续发牌
     else{
-
+        this.dealCard(this.curPlayIndex, this.getCard(1));
+        this.changeState(this.STATE_PLAYCARD);
     }
 }
 /**
@@ -663,6 +664,12 @@ p.handlePlayerGangCard = function (index, sqs) {
                     if(huAble){
                         jiehuAble = true;
                         this.changeState(this.STATE_HANDLECARD);
+
+                        var wait = new WaitObj();
+                        wait.index = i;
+                        wait.handleAble = "hu";
+                        //等待的玩家号和他的操作
+                        this.waitQueue.push(wait);
                         this.sendToOneRoomPlayer(i, {command:commands.ROOM_NOTIFY,
                             content:{state:this.roomCommand_handleCard, huAble:huAble, gangAble:false, pengAble:false, playAble:false}}
                         );
