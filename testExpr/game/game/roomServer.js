@@ -601,6 +601,7 @@ p.handlePlayerPengCard = function (index, sqs) {
     if(cardUtil.getCardPengAbleByCard(this["cards"+index], this.curPlayedCard)){
         console.log("可以碰牌");
         this.setPlayerHandleInQuene(index, "peng",sqs);
+        this.checkWaitQueueHu();
     }
     else{
         console.log("不能碰牌")
@@ -685,6 +686,7 @@ p.handlePlayerGangCard = function (index, sqs) {
         if(cardUtil.getCardGangAbleByCard(this["cards"+index], this.curPlayedCard)){
             console.log("可以杠牌");
             this.setPlayerHandleInQuene(index, "gang", sqs);
+            this.checkWaitQueueHu();
         }
         else{
             console.log("杠牌不合法");
@@ -698,29 +700,7 @@ p.handlePlayerGangCard = function (index, sqs) {
 p.handlePlayerGuoCard = function (index, sqs) {
     this.removePlayerfromWaitQuene(index);
     this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, sequence:sqs, code:0});
-
-    //过了之后没人等待了，继续摸牌，这个最简单
-    if(this.waitQueueLength() == 0){
-        this.waitQueue = [];
-        this.addCurIndex();
-        this.dealCard(this.curPlayIndex, this.getCard(1));
-        this.changeState(this.STATE_PLAYCARD);
-    }
-    //该玩家过了，还有其他玩家在等待 胡/杠/碰
-    else{
-        //有其他人可以胡牌 并且都点胡了
-        if(this.getHuPlayerFromQueue().length>0 && this.waitHuQueueLength()==0){
-            var huArr = this.getHuPlayerFromQueue();
-            for(var i=0; i<huArr.length; i++){
-                this.sendToOneRoomPlayer(huArr[i].index,{command:commands.ROOM_NOTIFY, sequence:huArr[i].sqs, code:0});
-                this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_huCard, huInfo:{index:index, card:this.curPlayedCard}}});
-                this.removePlayerfromWaitQuene(huArr[i].index);
-            }
-        }
-        else{
-
-        }
-    }
+    this.checkWaitQueueHu();
 }
 /**
  * 递增当前的操作玩家
