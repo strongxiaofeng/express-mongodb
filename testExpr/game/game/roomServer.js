@@ -555,7 +555,7 @@ p.handlePlayerHuCard = function (index, sqs) {
         if(cardUtil.getCardHuAble(this["cards"+index])){
             this["isPlayerOver"+index] = true;
             this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, sequence:sqs, code:0});
-            this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, sequence:sqs, content:{state:this.roomCommand_huCard, huInfo:{index:index, card:card}}});
+            this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_huCard, huInfo:{index:index, card:card}}});
 
             //计算还剩几个玩家没胡，如果只有1个，游戏结束
             if(this.checkPlayersOverNum()){
@@ -622,7 +622,7 @@ p.handlePlayerGangCard = function (index, sqs) {
         //暗杠
         if(cardUtil.getCardGangAble(this["cards"+this.curPlayIndex]) ){
             console.log("可以暗杠");
-            var returnData = cardUtil.removeCardFromArr(this["cards"+index], this.curPlayedCard, 4);
+            var returnData = cardUtil.removeCardFromArr(this["cards"+index], card, 4);
             this["cards"+index] = returnData[0];
             var removedCards = returnData[1];
             this["showedCards"+index] = this["showedCards"+index].concat(removedCards);
@@ -751,7 +751,7 @@ p.haveHuWait = function (index) {
  * 没有牌了 或者 3个人结束了，游戏结束
  * */
 p.gameOver = function () {
-    
+    this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_gameOver}});
 }
 /**
  * 从剩余的牌组的开始取n张牌
