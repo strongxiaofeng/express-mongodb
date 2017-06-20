@@ -16,55 +16,63 @@ var WaitObj = function () {
  * 单个房间服务
  * */
 var RoomServer = function () {
+    this.roomId = parseInt(Math.random()*100000000);
+    /**4个玩家*/
+    this.players = [];
+    /**牌组*/
+    this.leftCards = [];
+    /**玩家0的牌*/
+    this.cards0 = [];
+    /**玩家1的牌*/
+    this.cards1 = [];
+    /**玩家2的牌*/
+    this.cards2 = [];
+    /**玩家3的牌*/
+    this.cards3 = [];
+    /**玩家0的摆出来的牌*/
+    this.showedCards0 = [];
+    /**玩家1的摆出来的牌*/
+    this.showedCards1 = [];
+    /**玩家2的摆出来的牌*/
+    this.showedCards2 = [];
+    /**玩家3的摆出来的牌*/
+    this.showedCards3 = [];
+    /**玩家0的打过的牌*/
+    this.playedCards0 = [];
+    /**玩家1的打过的牌*/
+    this.playedCards1 = [];
+    /**玩家2的打过的牌*/
+    this.playedCards2 = [];
+    /**玩家3的打过的牌*/
+    this.playedCards3 = [];
+    /**玩家0的定缺*/
+    this.lackCard0 = "";
+    /**玩家1的定缺*/
+    this.lackCard1 = "";
+    /**玩家2的定缺*/
+    this.lackCard2 = "";
+    /**玩家3的定缺*/
+    this.lackCard3 = "";
+    /**当前出牌的人 默认0*/
+    this.curPlayIndex = 0;
+    /**当前出的牌*/
+    this.curPlayedCard = -1;
+    /**当前房间状态 01234*/
+    this.state = 0;/**
+     * 在STATE_HANDLECARD的状态时，等待胡/杠/碰的队列，以WaitObj作为子元素
+     * 有可能这个状态时有多个人都可以对当前出的牌有想法 他们有的想胡牌，有的想碰/杠，以胡牌的优先级最高 所以要写一个队列
+     * */
+    this.waitQueue = [];
+    /**是否胡牌*/
+    this.isPlayerOver0 = false;
+    this.isPlayerOver1 = false;
+    this.isPlayerOver2 = false;
+    this.isPlayerOver3 = false;
 }
+
 var p = RoomServer.prototype;
-p.roomId = parseInt(Math.random()*100000000);
-/**4个玩家*/
-p.players = [];
-/**牌组*/
-p.leftCards = [];
 /**发牌间隔*/
 p.dealCardTime = 300;
-
-/**玩家0的牌*/
-p.cards0 = [];
-/**玩家1的牌*/
-p.cards1 = [];
-/**玩家2的牌*/
-p.cards2 = [];
-/**玩家3的牌*/
-p.cards3 = [];
-/**玩家0的摆出来的牌*/
-p.showedCards0 = [];
-/**玩家1的摆出来的牌*/
-p.showedCards1 = [];
-/**玩家2的摆出来的牌*/
-p.showedCards2 = [];
-/**玩家3的摆出来的牌*/
-p.showedCards3 = [];
-/**玩家0的打过的牌*/
-p.playedCards0 = [];
-/**玩家1的打过的牌*/
-p.playedCards1 = [];
-/**玩家2的打过的牌*/
-p.playedCards2 = [];
-/**玩家3的打过的牌*/
-p.playedCards3 = [];
-/**玩家0的定缺*/
-p.lackCard0 = "";
-/**玩家1的定缺*/
-p.lackCard1 = "";
-/**玩家2的定缺*/
-p.lackCard2 = "";
-/**玩家3的定缺*/
-p.lackCard3 = "";
-/**当前出牌的人 默认0*/
-p.curPlayIndex = 0;
-/**当前出的牌*/
-p.curPlayedCard = -1;
-
-/**当前房间状态 01234*/
-p.state = 0;
 /**发牌*/
 p.STATE_DEALCARD = 0;
 /**定缺*/
@@ -75,11 +83,6 @@ p.STATE_PLAYCARD = 2;
 p.STATE_HANDLECARD = 3;
 /**结算*/
 p.STATE_PAYOUT = 4;
-/**
- * 在STATE_HANDLECARD的状态时，等待胡/杠/碰的队列，以WaitObj作为子元素
- * 有可能这个状态时有多个人都可以对当前出的牌有想法 他们有的想胡牌，有的想碰/杠，以胡牌的优先级最高 所以要写一个队列
- * */
-p.waitQueue = [];
 /**
  * 向玩家发送的状态码
  * 通知骰子点数和庄家
@@ -111,12 +114,6 @@ p.playCommand_pengCard = 3;
 p.playCommand_gangCard = 4;
 p.playCommand_huCard = 5;
 p.playCommand_guoCard = 6;
-
-/**是否胡牌*/
-p.isPlayerOver0 = false;
-p.isPlayerOver1 = false;
-p.isPlayerOver2 = false;
-p.isPlayerOver3 = false;
 
 /**
  * 设置4个玩家

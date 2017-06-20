@@ -1,6 +1,23 @@
 <html>
 <head>
+<script type="text/javascript">
 
+    var A = function () {
+        this.arr = [];
+    }
+//    A.prototype.arr = [];
+
+    A.prototype.addData = function (p) {
+        this.arr.push(p);
+        console.log(this.arr);
+    }
+
+    var a = new A();
+    a.addData(11)
+
+    var b = new A();
+    b.addData(22);
+</script>
 </head>
 <body>
 hello , this is express page
