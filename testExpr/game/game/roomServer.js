@@ -555,7 +555,7 @@ p.handlePlayerHuCard = function (index, sqs) {
         if(cardUtil.getCardHuAble(this["cards"+index])){
             this["isPlayerOver"+index] = true;
             this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, sequence:sqs, code:0});
-            this.sendToRoomPlayers(index,{command:commands.ROOM_NOTIFY, sequence:sqs, content:{state:this.roomCommand_huCard, huInfo:{index:index, card:card}}});
+            this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, sequence:sqs, content:{state:this.roomCommand_huCard, huInfo:{index:index, card:card}}});
 
             //计算还剩几个玩家没胡，如果只有1个，游戏结束
             if(this.checkPlayersOverNum()){
