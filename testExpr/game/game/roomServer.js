@@ -316,8 +316,14 @@ p.checkWaitQueueHu = function(){
                     console.log(+"游戏还未结束，下一个人继续摸牌");
                     //游戏还未结束，下一个人继续摸牌
                     this.addCurIndex();
-                    this.dealCard(this.curPlayIndex, this.getCard(1));
-                    this.changeState(this.STATE_PLAYCARD);
+                    var card = this.getCard(1);
+                    if(card){
+                        this.dealCard(this.curPlayIndex, card);
+                        this.changeState(this.STATE_PLAYCARD);
+                    }
+                    else{
+
+                    }
                 }
             }
             //都选择了过 不胡
@@ -380,8 +386,11 @@ p.checkWaitQueueGangPeng = function () {
 
                 //杠了之后摸一张
                 this.curPlayIndex = index;
-                this.dealCard(this.curPlayIndex, this.getCard(1));
-                this.changeState(this.STATE_PLAYCARD);
+                var card = this.getCard(1);
+                if(card){
+                    this.dealCard(this.curPlayIndex, card);
+                    this.changeState(this.STATE_PLAYCARD);
+                }
             }
         }
         else{
@@ -390,8 +399,11 @@ p.checkWaitQueueGangPeng = function () {
     }
     //没人可以碰杠 继续发牌
     else{
-        this.dealCard(this.curPlayIndex, this.getCard(1));
-        this.changeState(this.STATE_PLAYCARD);
+        var card = this.getCard(1);
+        if(card){
+            this.dealCard(this.curPlayIndex, card);
+            this.changeState(this.STATE_PLAYCARD);
+        }
     }
 }
 /**
@@ -542,8 +554,12 @@ p.handlePlayerPlarCard = function (index, card, sqs) {
         if(!needWait) {
             console.log("没人可以操作这张牌，就轮到下一个人摸牌");
             this.addCurIndex();
-            this.dealCard(this.curPlayIndex, this.getCard(1));
-            this.changeState(this.STATE_PLAYCARD);
+
+            var card = this.getCard(1);
+            if(card){
+                this.dealCard(this.curPlayIndex, card);
+                this.changeState(this.STATE_PLAYCARD);
+            }
         }
     }
     else{
@@ -571,8 +587,11 @@ p.handlePlayerHuCard = function (index, sqs) {
             else{
                 //游戏还未结束，下一个人继续摸牌
                 this.addCurIndex();
-                this.dealCard(this.curPlayIndex, this.getCard(1));
-                this.changeState(this.STATE_PLAYCARD);
+                var card = this.getCard(1);
+                if(card){
+                    this.dealCard(this.curPlayIndex, card);
+                    this.changeState(this.STATE_PLAYCARD);
+                }
             }
         }
         else{
@@ -644,8 +663,11 @@ p.handlePlayerGangCard = function (index, sqs) {
             this.sendToOtherRoomPlayer(index, {command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, otherCardNum:{index:index, num:this["cards"+index].length} ,leftCardsNum:this.leftCardsNum}});
 
             //杠了之后摸一张
-            this.dealCard(this.curPlayIndex, this.getCard(1));
-            this.changeState(this.STATE_PLAYCARD);
+            var card = this.getCard(1);
+            if(card){
+                this.dealCard(this.curPlayIndex, card);
+                this.changeState(this.STATE_PLAYCARD);
+            }
         }
         //巴杠
         else if(cardUtil.getCardGangAbleByCard(this["showedCards"+this.curPlayIndex],card)){
@@ -683,8 +705,11 @@ p.handlePlayerGangCard = function (index, sqs) {
 
             //没有截胡的话 杠了之后摸一张
             if(!jiehuAble){
-                this.dealCard(this.curPlayIndex, this.getCard(1));
-                this.changeState(this.STATE_PLAYCARD);
+                var card = this.getCard(1);
+                if(card){
+                    this.dealCard(this.curPlayIndex, card);
+                    this.changeState(this.STATE_PLAYCARD);
+                }
             }
         }
         else{
@@ -766,7 +791,7 @@ p.getCard = function (n) {
     if(this.leftCards.length == 0){
         console.log("没有牌了 游戏结束");
         this.gameOver();
-        return;
+        return null;
     }
 
     var arr = [];
