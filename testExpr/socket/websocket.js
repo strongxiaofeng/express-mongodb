@@ -64,7 +64,12 @@ function onMessage(ws, msg) {
 exports.sendMsg = function (ws, data) {
     var msg = JSON.stringify(data);
     console.log("向一个客户发出消息 "+msg);
-    ws.send(msg);
+    try{
+        ws.send(msg);
+    }
+    catch(e){
+        console.log("发送消息失败 index:"+ws.index+" name:"+ws.name);
+    }
 }
 /**向所有客户发送消息*/
 exports.sendAll = function (msg) {

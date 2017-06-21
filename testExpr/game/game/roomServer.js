@@ -486,16 +486,22 @@ p.handlePlayerPlarCard = function (index, card, sqs) {
         this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, sequence:sqs, code:codes.PLAY_ERROR});
     }
 
-    console.log(index+"玩家出牌 "+card,this["cards"+index]);
-    var i = this["cards"+index].indexOf(card)
+    console.log(index+"玩家申请出牌 "+card,this["cards"+index]);
+    var i = this["cards"+index].indexOf(card);
     if(i >= 0){
         this["cards"+index].splice(i, 1);
         this["playedCards"+index].push(card);
+        console.log('往'+index+"的出牌队列中push一个"+card, this["playedCards"+index]);
         this.curPlayedCard = card;
-        //告知玩家出牌成功
+        //告知玩家出牌成功 他自己去出掉这张牌
         this.sendToOneRoomPlayer(index, {command:commands.ROOM_NOTIFY, code:0, sequence:sqs});
         //告知所有玩家 有人出牌了 刷新出过的牌的队列
         this.sendToRoomPlayers({command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_playedCard, playedCards:{index:index, cards:this["playedCards"+index] }} });
+        //告知他自己 他牌少了1张 还剩哪些牌
+        this.sendToOneRoomPlayer(index,{command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, removeCards:[card] ,leftCardsNum:this.leftCardsNum}});
+        //告知其他人 他牌少了1张
+        this.sendToOtherRoomPlayer(index, {command:commands.ROOM_NOTIFY, content:{state:this.roomCommand_dealCard, otherCardNum:{index:index, num:this["cards"+index].length} ,leftCardsNum:this.leftCardsNum}});
+
 
         //另外三个人中还没胡牌的，是否可以胡/杠/碰 这个牌
         var needWait = false;
@@ -617,6 +623,7 @@ p.handlePlayerGangCard = function (index, sqs) {
 
     //自杠 可能是 暗杠或者巴杠 巴杠可以被截胡
     if(index == this.curPlayIndex){
+        console.log("座位号"+index+"申请自杠");
         //取出玩家最后一张摸到的牌
         var card = this["cards"+index][this["cards"+index].length-1];
         //暗杠
@@ -746,7 +753,6 @@ p.haveHuWait = function (index) {
     }
     return false;
 }
-
 /**
  * 没有牌了 或者 3个人结束了，游戏结束
  * */
