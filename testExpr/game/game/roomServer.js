@@ -199,7 +199,7 @@ p.changeState = function (n,params) {
             //出牌的人能不能暗杠
             var gangAble = cardUtil.getCardGangAble(this["cards"+this.curPlayIndex]);
             //出牌的人能不能巴杠
-            var bagangAble = cardUtil.getCardGangAbleByCard(this["showedCards"+this.curPlayIndex], card);
+            var bagangAble = cardUtil.getCardGangAbleByCard(this["showedCards"+this.curPlayIndex], this["cards"+this.curPlayIndex][this["cards"+this.curPlayIndex].length-1]);
             //能否自摸
             var huAble = cardUtil.getCardHuAble(this["cards"+this.curPlayIndex]);
             //碰牌之后的出牌，只能出，不能杠 胡
